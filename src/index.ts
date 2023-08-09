@@ -19,7 +19,7 @@ export type NextToolHandlerArgs = {
   send: NextToolSendFn;
 };
 
-export type NextToolGetStoreFn<Store> = () => Promise<Store | undefined>;
+export type NextToolStoreOrPromise<Store> = () => Promise<Store | undefined>;
 
 export type NextToolActionConfig = {
   after?: (input: any, request?: NextToolRequest) => Promise<any>;
@@ -36,10 +36,13 @@ export type NextToolActionFn<Input = any, Output = any> = (
   request?: NextToolRequest
 ) => Promise<Output>;
 
-export abstract class NextTool<Config extends NextToolConfig, Store> {
+export abstract class NextTool<
+  Config extends NextToolConfig,
+  Store = undefined,
+> {
   protected store: Store | undefined;
 
-  protected getStoreFn: NextToolGetStoreFn<Store>;
+  protected getStoreFn: NextToolStoreOrPromise<Store>;
 
   protected config: Config;
 
@@ -47,7 +50,7 @@ export abstract class NextTool<Config extends NextToolConfig, Store> {
 
   constructor(
     config: Config,
-    store: NextToolGetStoreFn<Store> | Store,
+    store?: NextToolStoreOrPromise<Store>,
     actionMap?: Record<string, NextToolActionFn>
   ) {
     this.config = config;
@@ -58,10 +61,7 @@ export abstract class NextTool<Config extends NextToolConfig, Store> {
           ? store
           : () => Promise.resolve(store)
         : undefined
-    ) as NextToolGetStoreFn<Store>;
-    if (!getStoreFn) {
-      throw new Error('store is undefined');
-    }
+    ) as NextToolStoreOrPromise<Store>;
     this.getStoreFn = getStoreFn;
   }
 
