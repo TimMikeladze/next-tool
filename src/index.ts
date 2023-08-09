@@ -50,7 +50,7 @@ export abstract class NextTool<
 
   constructor(
     config: Config,
-    store?: NextToolStorePromise<Store>,
+    store?: NextToolStorePromise<Store> | Store,
     actionMap?: Record<string, NextToolActionFn>
   ) {
     this.config = config;
@@ -63,6 +63,27 @@ export abstract class NextTool<
         : undefined
     ) as NextToolStorePromise<Store>;
     this.getStoreFn = getStoreFn;
+  }
+
+  public static namespaceFromEnv(project?: string) {
+    if (process.env.VERCEL) {
+      return NextTool.namespaceFromVercel();
+    }
+
+    return [project || `localhost`, process.env.NODE_ENV]
+      .filter(Boolean)
+      .join(':')
+      .toLowerCase();
+  }
+
+  private static namespaceFromVercel() {
+    return [
+      process.env.VERCEL_GIT_REPO_OWNER,
+      process.env.VERCEL_GIT_REPO_SLUG,
+      process.env.VERCEL_ENV,
+    ]
+      .join(':')
+      .toLowerCase();
   }
 
   public getConfig() {
