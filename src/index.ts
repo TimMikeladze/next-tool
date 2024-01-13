@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server.js';
-import { NextApiRequest, NextApiResponse } from 'next/types';
+import type { NextRequest } from 'next/server.js';
+import { NextResponse } from 'next/server.js';
+import type { NextApiRequest, NextApiResponse } from 'next/types';
 
 export type NextToolRequest = {
   body?: {
